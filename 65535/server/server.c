@@ -1,17 +1,6 @@
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <sys/sem.h>
-#include <inttypes.h>
-#include <sys/types.h>
+
+
 #include "server.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <semaphore.h>
-#include <err.h>
-
-#include "comm.h"
 
 _fd fid;
 
@@ -75,17 +64,24 @@ void close_server()
     cfile();
 }
 
+void update(shm_rep* rep){
+    printf("%u",rep->code);
+}
+
 int main(size_t argc,const char* argv[])
 {
     atexit(close_server);
     init_server(argc,argv);
 
-    uint32_t acc;
-    accountValue('A',17,&acc);
+    shm_rep* rep = vshm();
 
-    printf("%u\n",acc);
+    //syncronization
+    while(rep->code != CODE_EXIT){
+       ASSERT(wsem(SEM_B1),"Could not wait sem")
+        update(rep);
+       ASSERT(ssem(SEM_B2),"Could signal")
+    }
 
-    memset(vshm(), 0, SHM_MEM_SIZE);
-    //printf("%u", wsem(SEM_B1));
+    
    
 }
