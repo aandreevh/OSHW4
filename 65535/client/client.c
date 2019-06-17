@@ -46,6 +46,7 @@ int main(int argc,char* argv[]){
     transact(argv[1][0],0,&output);
     manageTransact(&output);
 
+    printf("Amount: ");
     int16_t val;
     scanf("%"SCNd16,&val);
     
