@@ -72,10 +72,11 @@ void manage_request(shm_rep* rep){
         char acc = *(char*)&rep->bytes;
         int16_t val2 = *(int16_t*)((&rep->bytes) +1);
         bool suc = accountValue(acc,val2,&val);    
-
+        if(val2 ==0)printf("Client requested info from account %c\n",acc);
+        else printf("Client requested bank change (%"PRId16") from account %c\n",val2,acc);
         if(suc){
                 (*(uint32_t*)&(rep->bytes)) = val;
-
+              
         }else{
             rep->code = CODE_ERR;
             char* err = "Invalid bank operation";

@@ -42,12 +42,13 @@ int main(int argc,char* argv[]){
     atexit(close_client);
     init_client();
 
-    int16_t val;
-    scanf("%"SCNd16,&val);
-    
     shm_rep output;
     transact(argv[1][0],0,&output);
     manageTransact(&output);
+
+    int16_t val;
+    scanf("%"SCNd16,&val);
+    
 
 
     transact(argv[1][0],val,&output);
