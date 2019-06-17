@@ -4,7 +4,7 @@
 #include<string.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <err.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -26,13 +26,29 @@
 #define SEM_B1 1 // server wait for event (barrier)
 #define SEM_B2 2 // client wait for event (barrier)
 
+
+#define MAX_ACC 8
+
+#define CODE_EXIT -1
+#define CODE_NORM 0
+#define CODE_ERR 1
+struct shm_rep_impl
+{
+    int8_t code;
+    uint8_t bytes[SHM_MEM_SIZE - sizeof(uint8_t)];
+};
+
+typedef struct shm_rep_impl shm_rep;
+
+
+
 #define ASSERT(c, m) \
     if (!(c))        \
-        err(1, m);
+        err(1, "%s",m);
 
 #define ASSERTX(c, m) \
     if (!(c))        \
-        errx(1, m);
+        errx(1, "%s",m);
 
 typedef int _sem;
 typedef int _fd;
@@ -48,7 +64,7 @@ extern void isem(bool);
 extern void dsem(bool);
 
 extern bool wsem(_sem);
-extern bool sigsem(_sem);
+extern bool ssem(_sem);
 
-
+extern bool verifyAccount(char);
 #endif

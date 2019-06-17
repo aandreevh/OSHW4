@@ -8,13 +8,13 @@ static int sem_id = -1;
 bool wsem(_sem sem)
 {
     ASSERTX(sem_id != -1, "Sem not opened")
-    return semop(sem_id, &(struct sembuf){sem, -1, SEM_UNDO}, 1) == -1 ? false : true;
+    return semop(sem_id, &(struct sembuf){sem, -1, 0}, 1) == -1 ? false : true;
 }
 
-bool sigsem(_sem sem)
+bool ssem(_sem sem)
 {
     ASSERTX(sem_id != -1, "Sem not opened")
-    return semop(sem_id, &(struct sembuf){sem, +1, SEM_UNDO}, 1) == -1 ? false : true;
+    return semop(sem_id, &(struct sembuf){sem, +1, 0}, 1) == -1 ? false : true;
 }
 
 extern void init(bool creat)
@@ -86,4 +86,8 @@ void *vshm()
         ASSERT((shm_ptr = shmat(shm_id, NULL, 0)) != (void *)-1, "Could not get shared mem ptr")
 
     return shm_ptr;
+}
+
+bool verifyAccount(char acc){
+    return acc-'A' < MAX_ACC;
 }

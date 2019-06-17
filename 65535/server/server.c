@@ -19,9 +19,7 @@ void ofile(const char *file)
     }
 }
 
-bool verifyAccount(char acc){
-    return acc-'A' < MAX_ACC;
-}
+
 
 
 bool accountValue(char acc,int16_t val,uint32_t* out){
@@ -52,10 +50,13 @@ void cfile()
 
 void init_server(size_t argc,const char* argv[])
 {
+    printf("Starting server\n");
     ASSERTX(argc == 2,"Invalid argument")
 
     ofile(argv[1]);
     init(true);
+    printf("Server initialized\n");
+    printf("Starting to listen on <shm,sem> key: <%d,%d>\n",SHM_KEY,SEM_KEY);
 }
 void close_server()
 {
@@ -63,9 +64,24 @@ void close_server()
     del(true);
     cfile();
 }
+int counter=0;
+void manage_request(shm_rep* rep){
+    uint32_t val;
 
-void update(shm_rep* rep){
-    printf("%u",rep->code);
+    if(rep->code == CODE_NORM){
+        char acc = *(char*)&rep->bytes;
+        int16_t val2 = *(int16_t*)((&rep->bytes) +1);
+        bool suc = accountValue(acc,val2,&val);    
+
+        if(suc){
+                (*(uint32_t*)&(rep->bytes)) = val;
+
+        }else{
+            rep->code = CODE_ERR;
+            char* err = "Invalid bank operation";
+            memcpy(&rep->bytes,err,strlen(err)+1);
+        }
+    }
 }
 
 int main(size_t argc,const char* argv[])
@@ -78,10 +94,9 @@ int main(size_t argc,const char* argv[])
     //syncronization
     while(rep->code != CODE_EXIT){
        ASSERT(wsem(SEM_B1),"Could not wait sem")
-        update(rep);
-       ASSERT(ssem(SEM_B2),"Could signal")
+       manage_request(rep);
+       ASSERT(ssem(SEM_B2),"Could not signal")
     }
 
-    
-   
+
 }
